@@ -1,9 +1,11 @@
 CppByteArray
 ============
 
-To start testing:
+To start:
 
+```
   mkdir bin/ && cd bin/
   cmake ..
   make
   ./main.o
+```
