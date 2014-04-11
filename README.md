@@ -9,3 +9,5 @@ To start:
   make
   ./main.o
 ```
+
+Everyone are welcome to contribute!
