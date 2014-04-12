@@ -9,6 +9,9 @@
 
 using namespace std;
 
+#define LITTLE_ENDIAN_ 0
+#define BIG_ENDIAN_ 1
+
 class ByteArray {
 public:
 	/* Initialize empty ByteArray with predefined size */
@@ -23,6 +26,23 @@ public:
 		bytesAvailable_ = size;
 		vector_.reserve(size);
 		vector_.assign(newvector_.begin(), newvector_.end());
+	}
+	/* Initialize empty ByteArray with predefined size and endianness option */
+	ByteArray(unsigned int size_, unsigned char endianness_) {
+		size = size_;
+		bytesAvailable_ = size;
+		vector_.reserve(size);
+		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
+			endianness = endianness_;
+	}
+	/* Initialize ByteArray using existing vector of char and endianness option */
+	ByteArray(vector<char> newvector_, unsigned char endianness_) {
+		size = newvector_.size();
+		bytesAvailable_ = size;
+		vector_.reserve(size);
+		vector_.assign(newvector_.begin(), newvector_.end());
+		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
+			endianness = endianness_;
 	}
 
 	/* Set the position to write or read */
@@ -61,14 +81,20 @@ public:
 		if (bytesAvailable_ < 2) {
 			return false;
 		}
-		return writeByte(short_ & 0xFF) && writeByte(short_ >> 8);
+		if (endianness == LITTLE_ENDIAN_)
+			return writeByte(short_ & 0xFF) && writeByte((short_ >> 8) & 0xFF);
+		else
+			return writeByte((short_ >> 8) & 0xFF) && writeByte(short_ & 0xFF);
 	}
 
 	bool writeInt(int int_) {
 		if (bytesAvailable_ < 4) {
 			return false;
 		}
-		return writeByte(int_ & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte(int_ >> 24);
+		if (endianness == LITTLE_ENDIAN_)
+			return writeByte(int_ & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 24) & 0xFF);
+		else
+			return writeByte((int_ >> 24) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte(int_ & 0xFF);
 	}
 
 	bool writeUTF(string string_) {
@@ -107,7 +133,7 @@ public:
 	}
 
 	short readShort() {
-		short short_ = ((int)(unsigned char)vector_[position + 1] << 8) | (unsigned char)vector_[position];
+		short short_ = ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 0 : 1)];
 		if (position >= size -1) {
 			throw 1;
 		}
@@ -130,7 +156,7 @@ public:
 	}
 
 	int readInt() {
-		int int_ = ((int)(unsigned char)vector_[position + 3] << 24) | ((int)(unsigned char)vector_[position + 2] << 16) | ((int)(unsigned char)vector_[position + 1] << 8) | (unsigned char)vector_[position];
+		int int_ = ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 0 : 3)];
 		if (position >= size -3) {
 			throw 1;
 		}
@@ -182,4 +208,7 @@ private:
 
 	/* Fixed size of the ByteArray */
 	unsigned int size = 0;
+
+	/* Define the endianness, little endian by default*/
+	unsigned char endianness = LITTLE_ENDIAN_;
 };
