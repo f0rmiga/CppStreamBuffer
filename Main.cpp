@@ -100,5 +100,22 @@ int main() {
 	cout << int(testArray2.readInt()) << endl;
 	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.getSize() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 
+	print("\n> Testing creation of another ByteArray to use UTF\n", 31, false);
+	ByteArray testArray3(10);
+
+	print("> Testing writeUTF(str)... ", 30, true);
+	print(testArray3.writeUTF("testArray3") ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray3.getPosition() << " | Size: " << testArray3.getSize() << " | Bytes Available: " << testArray3.bytesAvailable() << endl;
+	print("> Switching position to 0... ", 30, true);
+	testArray3.setPosition(0);
+	print(testArray3.getPosition() == 0 ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray3.getPosition() << " | Size: " << testArray3.getSize() << " | Bytes Available: " << testArray3.bytesAvailable() << endl;
+	print("> Testing readUTF(testArray3.bytesAvailable())... ", 30, true);
+	print(testArray3.readUTF(testArray3.bytesAvailable()) == "testArray3" ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray3.getPosition() << " | Size: " << testArray3.getSize() << " | Bytes Available: " << testArray3.bytesAvailable() << endl;
+	print("> Testing readUTF(3, 7)... ", 30, true);
+	print(testArray3.readUTF(3, 7) == "tArray3" ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray3.getPosition() << " | Size: " << testArray3.getSize() << " | Bytes Available: " << testArray3.bytesAvailable() << endl;
+
 	return 0;
 }

@@ -71,6 +71,16 @@ public:
 		return writeByte(int_ & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte(int_ >> 24);
 	}
 
+	bool writeUTF(string string_) {
+		if (bytesAvailable_ < string_.size()) {
+			return false;
+		}
+		for (unsigned int i = 0; i < string_.size(); i++) {
+			writeByte(string_[i]);
+		}
+		return true;
+	}
+
 	/* Read functions */
 	/* Throws exception if try to read out of bounds */
 	char readByte() {
@@ -140,6 +150,24 @@ public:
 	}
 	unsigned int readUnsignedInt(unsigned int offset) {
 		return readInt(offset);
+	}
+
+	string readUTF(unsigned int size_) {
+		if (size_ > size - position) {
+			throw 1;
+		}
+		string string_;
+		for (unsigned int o = 0; o < size_; position++, o++) {
+			string_.push_back(vector_[position]);
+		}
+		bytesAvailable_ = size - position;
+		return string_;
+	}
+	string readUTF(unsigned int offset, unsigned int size_) {
+		if (size_ <= size - offset) {
+			position = offset;
+		}
+		return readUTF(size_);
 	}
 
 private:
