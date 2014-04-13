@@ -6,6 +6,8 @@
 //============================================================================
 
 #include <iostream>
+#include <chrono>
+
 #include "ByteArray.h"
 
 using namespace std;
@@ -116,6 +118,57 @@ int main() {
 	print("> Testing readUTF(3, 7)... ", 30, true);
 	print(testArray3.readUTF(3, 7) == "tArray3" ? "passed!\n" : "error!\n", 31);
 	cout << "> Position: " << testArray3.getPosition() << " | Size: " << testArray3.getSize() << " | Bytes Available: " << testArray3.bytesAvailable() << endl;
+
+	print("\n>> Testing performance <<\n", 31, true);
+	print("> Creating ByteArray of size 10.000.000, writeByte(110) until fill\n", 30, true);
+	chrono::time_point<chrono::system_clock> start, end;
+	start = chrono::system_clock::now();
+	ByteArray performance_ByteArray(10000000);
+	for (unsigned int i = 0; i < 10000000; i++) {
+		performance_ByteArray.writeByte(110);
+	}
+	end = chrono::system_clock::now();
+
+	chrono::duration<double> elapsed_seconds;
+	elapsed_seconds = end-start;
+	print("Result: ", 31, false);
+	cout << elapsed_seconds.count() * 1000 << " ms\n";
+
+	print("> Reading ByteArray of size 10.000.000 using readByte()\n", 30, true);
+	performance_ByteArray.setPosition(0);
+	start = chrono::system_clock::now();
+	for (unsigned int i = 0; i < 10000000; i++) {
+		performance_ByteArray.readByte();
+	}
+	end = chrono::system_clock::now();
+
+	elapsed_seconds = end-start;
+	print("Result: ", 31, false);
+	cout << elapsed_seconds.count() * 1000 << " ms\n";
+
+	print("> Reading ByteArray of size 10.000.000 using readShort()\n", 30, true);
+	performance_ByteArray.setPosition(0);
+	start = chrono::system_clock::now();
+	for (unsigned int i = 0; i < 5000000; i++) {
+		performance_ByteArray.readShort();
+	}
+	end = chrono::system_clock::now();
+
+	elapsed_seconds = end-start;
+	print("Result: ", 31, false);
+	cout << elapsed_seconds.count() * 1000 << " ms\n";
+
+	print("> Reading ByteArray of size 10.000.000 using readInt()\n", 30, true);
+	performance_ByteArray.setPosition(0);
+	start = chrono::system_clock::now();
+	for (unsigned int i = 0; i < 2500000; i++) {
+		performance_ByteArray.readInt();
+	}
+	end = chrono::system_clock::now();
+
+	elapsed_seconds = end-start;
+	print("Result: ", 31, false);
+	cout << elapsed_seconds.count() * 1000 << " ms\n";
 
 	return 0;
 }
