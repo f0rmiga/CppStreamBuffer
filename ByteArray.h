@@ -110,23 +110,23 @@ public:
 	}
 
 	bool writeShort(short short_) {
-		if (bytesAvailable_ < 2) { // Verifies if the ByteArray has available space to write 2 bytes
-			return false; // Returns false if it doesn't
-		}
-		if (endianness == LITTLE_ENDIAN_)
-			return writeByte(short_ & 0xFF) && writeByte((short_ >> 8) & 0xFF); // Writes the little endian sequence
-		else
-			return writeByte((short_ >> 8) & 0xFF) && writeByte(short_ & 0xFF); // Writes the big endian sequence
+		return writeShort(short_, endianness);
+	}
+	bool writeShortBE(short short_) {
+		return writeShort(short_, BIG_ENDIAN_);
+	}
+	bool writeShortLE(short short_) {
+		return writeShort(short_, LITTLE_ENDIAN_);
 	}
 
 	bool writeInt(int int_) {
-		if (bytesAvailable_ < 4) { // Verifies if the ByteArray has available space to write 4 bytes
-			return false; // Returns false if it doesn't
-		}
-		if (endianness == LITTLE_ENDIAN_)
-			return writeByte(int_ & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 24) & 0xFF); // Writes the little endian sequence
-		else
-			return writeByte((int_ >> 24) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte(int_ & 0xFF); // Writes the big endian sequence
+		return writeInt(int_, endianness);
+	}
+	bool writeIntBE(int int_) {
+		return writeInt(int_, BIG_ENDIAN_);
+	}
+	bool writeIntLE(int int_) {
+		return writeInt(int_, LITTLE_ENDIAN_);
 	}
 
 	bool writeUTF(string string_) {
@@ -165,49 +165,97 @@ public:
 	}
 
 	short readShort() {
-		if (position >= size_ -1) { // Stop the read if it has not enough bytes available to read
-			throw 1; // Throws error
-		}
-		short short_ = ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 0 : 1)]; // Gets the bytes in the right sequence based on the endianness
-		position += 2; // Moves the position by 2 bytes
-		bytesAvailable_ = size_ - position; // Calculate the new bytes available
-		return short_; // Returns the short
+		return readShort(position, endianness);
 	}
 	short readShort(unsigned int offset) {
 		if (offset < size_ - 1) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
-		return readShort();
+		return readShort(position, endianness);
+	}
+	short readShortBE() {
+		return readShort(position, BIG_ENDIAN_);
+	}
+	short readShortLE() {
+		return readShort(position, LITTLE_ENDIAN_);
+	}
+	short readShortBE(unsigned int offset) {
+		if (offset < size_ - 1) {
+			position = offset;
+		}
+		return readShort(position, BIG_ENDIAN_);
+	}
+	short readShortLE(unsigned int offset) {
+		if (offset < size_ - 1) {
+			position = offset;
+		}
+		return readShort(position, LITTLE_ENDIAN_);
 	}
 
 	unsigned short readUnsignedShort() {
-		return readShort();
+		return readShort(position, endianness);
+	}
+	unsigned short readUnsignedShortBE() {
+		return readShort(position, BIG_ENDIAN_);
+	}
+	unsigned short readUnsignedShortLE() {
+		return readShort(position, LITTLE_ENDIAN_);
 	}
 	unsigned short readUnsignedShort(unsigned int offset) {
 		return readShort(offset);
 	}
+	unsigned short readUnsignedShortBE(unsigned int offset) {
+		return readShortBE(offset);
+	}
+	unsigned short readUnsignedShortLE(unsigned int offset) {
+		return readShortLE(offset);
+	}
 
 	int readInt() {
-		if (position >= size_ -3) { // Stop the read if it has not enough bytes available to read
-			throw 1; // Throws error
-		}
-		int int_ = ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 0 : 3)]; // Gets the bytes in the right sequence based on the endianness
-		position += 4; // Moves the position by 4 bytes
-		bytesAvailable_ = size_ - position; // Calculate the new bytes available
-		return int_; // Returns the int
+		return readInt(position, endianness);
 	}
 	int readInt(unsigned int offset) {
 		if (offset < size_ - 3) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
-		return readInt();
+		return readInt(position, endianness);
+	}
+	int readIntBE() {
+		return readInt(position, BIG_ENDIAN_);
+	}
+	int readIntLE() {
+		return readInt(position, LITTLE_ENDIAN_);
+	}
+	int readIntBE(unsigned int offset) {
+		if (offset < size_ - 3) {
+			position = offset;
+		}
+		return readInt(position, BIG_ENDIAN_);
+	}
+	int readIntLE(unsigned int offset) {
+		if (offset < size_ - 3) {
+			position = offset;
+		}
+		return readInt(position, LITTLE_ENDIAN_);
 	}
 
 	unsigned int readUnsignedInt() {
-		return readInt();
+		return readInt(position, endianness);
+	}
+	unsigned int readUnsignedIntBE() {
+		return readInt(position, BIG_ENDIAN_);
+	}
+	unsigned int readUnsignedIntLE() {
+		return readInt(position, LITTLE_ENDIAN_);
 	}
 	unsigned int readUnsignedInt(unsigned int offset) {
 		return readInt(offset);
+	}
+	unsigned int readUnsignedIntBE(unsigned int offset) {
+		return readIntBE(offset);
+	}
+	unsigned int readUnsignedIntLE(unsigned int offset) {
+		return readIntLE(offset);
 	}
 
 	string readUTF(unsigned int size) {
@@ -243,4 +291,45 @@ private:
 
 	/* Define the endianness, little endian by default*/
 	unsigned char endianness = LITTLE_ENDIAN_;
+
+	/* All private functions to be called from public functions */
+	bool writeShort(short short_, unsigned char endianness_) {
+		if (bytesAvailable_ < 2) { // Verifies if the ByteArray has available space to write 2 bytes
+			return false; // Returns false if it doesn't
+		}
+		if (endianness_ == LITTLE_ENDIAN_)
+			return writeByte(short_ & 0xFF) && writeByte((short_ >> 8) & 0xFF); // Writes the little endian sequence
+		else
+			return writeByte((short_ >> 8) & 0xFF) && writeByte(short_ & 0xFF); // Writes the big endian sequence
+	}
+
+	bool writeInt(int int_, unsigned char endianness_) {
+		if (bytesAvailable_ < 4) { // Verifies if the ByteArray has available space to write 4 bytes
+			return false; // Returns false if it doesn't
+		}
+		if (endianness_ == LITTLE_ENDIAN_)
+			return writeByte(int_ & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 24) & 0xFF); // Writes the little endian sequence
+		else
+			return writeByte((int_ >> 24) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte(int_ & 0xFF); // Writes the big endian sequence
+	}
+
+	short readShort(unsigned int offset, unsigned char endianness_) {
+		if (offset >= size_ -1) { // Stop the read if it has not enough bytes available to read
+			throw 1; // Throws error
+		}
+		short short_ = ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 0 : 1)]; // Gets the bytes in the right sequence based on the endianness
+		position += 2; // Moves the position by 2 bytes
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
+		return short_; // Returns the short
+	}
+
+	int readInt(unsigned int offset, unsigned char endianness_) {
+		if (offset >= size_ -3) { // Stop the read if it has not enough bytes available to read
+			throw 1; // Throws error
+		}
+		int int_ = ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 0 : 3)]; // Gets the bytes in the right sequence based on the endianness
+		position += 4; // Moves the position by 4 bytes
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
+		return int_; // Returns the int
+	}
 };
