@@ -129,7 +129,7 @@ int main() {
 	print("> Creating ByteArray of size 10.000.000, writeByte(110) until fill\n", 30, true);
 	chrono::time_point<chrono::system_clock> start, end;
 	start = chrono::system_clock::now();
-	unsigned int size_performance = 1000000000;
+	unsigned int size_performance = 10000000;
 	ByteArray performance_ByteArray(size_performance);
 	for (unsigned int i = 0; i < size_performance; i++) {
 		performance_ByteArray.writeByte(110);
