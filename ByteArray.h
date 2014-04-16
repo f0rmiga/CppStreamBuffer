@@ -5,8 +5,6 @@
 // Copyright   : Thulio Ferraz Assis all rights reserved
 //============================================================================
 
-#include <vector>
-
 using namespace std;
 
 #define LITTLE_ENDIAN_ 0
@@ -15,40 +13,59 @@ using namespace std;
 class ByteArray {
 public:
 	/* Initialize empty ByteArray with predefined size */
-	ByteArray(unsigned int size_) {
-		size = size_; // Set the private var "size" to the provided "size_"
+	ByteArray(unsigned int size) {
+		size_ = size; // Set the private var "size" to the provided "size_"
 		bytesAvailable_ = size; // Set the bytes available
-		vector_.reserve(size); // Reserve the size in memory
+		buffer = (char*)malloc(size); // Reserve the size in memory
 	}
-	/* Initialize ByteArray using existing vector of char */
-	ByteArray(vector<char> newvector_) {
-		size = newvector_.size(); // Set the private var "size" to the size of the provided vector<char>
-		bytesAvailable_ = size; // Set the bytes available
-		vector_.reserve(size); // Reserve the size in memory
-		vector_.assign(newvector_.begin(), newvector_.end()); // Assign to the private vector<char> used by the class the provided "newvector_"
+	/* Initialize ByteArray using existing array of char */
+	ByteArray(const char * newarray_) {
+		size_ = sizeof(newarray_); // Set the private var "size" to the size of the provided array
+		bytesAvailable_ = size_; // Set the bytes available
+		buffer = (char*)malloc(size_); // Reserve the size in memory
+		memcpy(buffer, newarray_, size_);
 	}
 	/* Initialize empty ByteArray with predefined size and endianness option */
-	ByteArray(unsigned int size_, unsigned char endianness_) {
-		size = size_;
-		bytesAvailable_ = size;
-		vector_.reserve(size);
+	ByteArray(unsigned int size, unsigned char endianness_) {
+		size_ = size;
+		bytesAvailable_ = size_;
+		buffer = (char*)malloc(size_); // Reserve the size in memory
 		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
 			endianness = endianness_;
 	}
-	/* Initialize ByteArray using existing vector of char and endianness option */
-	ByteArray(vector<char> newvector_, unsigned char endianness_) {
-		size = newvector_.size();
-		bytesAvailable_ = size;
-		vector_.reserve(size);
-		vector_.assign(newvector_.begin(), newvector_.end());
+	/* Initialize ByteArray using existing array of char and endianness option */
+	ByteArray(const char * newarray_, unsigned char endianness_) {
+		size_ = sizeof(newarray_);
+		bytesAvailable_ = size_;
+		buffer = (char*)malloc(size_); // Reserve the size in memory
+		memcpy(buffer, newarray_, size_);
 		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
 			endianness = endianness_;
+	}
+
+	~ByteArray() {
+		free(buffer);
+		buffer = NULL;
 	}
 
 	/* Set the position to write or read */
 	void setPosition(unsigned int position_) {
 		position = position_; // set the private var "position" to the provided "position_"
-		bytesAvailable_ = size - position; // set the bytes available based on the size and the new position
+		bytesAvailable_ = size_ - position; // set the bytes available based on the size and the new position
+	}
+
+	bool resize(unsigned int newsize_) {
+		char * provisory_buffer = (char*)realloc(buffer, newsize_);
+
+		if (provisory_buffer != NULL) {
+			buffer = provisory_buffer;
+			size_ = newsize_;
+			setPosition(0);
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 	/* Returns actual position to write or read */
@@ -61,19 +78,34 @@ public:
 		return bytesAvailable_;
 	}
 
-	/* Returns related to the vector */
-	vector<char> result() { return vector_; } // Returns the vector<char> of the ByteArray to use in other classes or libraries
-	unsigned int getSize() { return size; }
+	/* Returns related to the array */
+	const char * result() { return buffer; } // Returns the buffer of the ByteArray to use in other classes or libraries
+	unsigned int size() { return size_; }
+	string getStringView(bool decimalView_) { // Returns a string that contains the value of each byte in the ByteArray. Ex: <buffer 10 -26 90 77 >
+		stringstream stream_;
+		stream_ << "<buffer ";
+		for (unsigned int i = 0; i < size_; i++) {
+			if (decimalView_)
+				stream_ << (int)(unsigned char)buffer[i] << " ";
+			else
+				stream_ << "0x" << std::hex << (int)(unsigned char)buffer[i] << " ";
+		}
+		stream_ << ">";
+		return stream_.str();
+	}
+	string getStringView() {
+		return getStringView(false);
+	}
 
 	/* Write functions */
 	/* returns true if wrote, otherwise, returns false */
 	bool writeByte(char byte_) {
-		if (position > size - 1) { // Verifies if the ByteArray has available space to write 1 byte
+		if (position > size_ - 1) { // Verifies if the ByteArray has available space to write 1 byte
 			return false; // Returns false if it doesn't
 		}
-		vector_[position] = byte_; // Writes the byte in the current position
+		buffer[position] = byte_; // Writes the byte in the current position
 		position++; // Moves the position
-		bytesAvailable_ = size - position; // Calculate the new bytes available
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return true;
 	}
 
@@ -110,16 +142,16 @@ public:
 	/* Read functions */
 	/* Throws exception if try to read out of bounds */
 	char readByte() {
-		if (position >= size) { // Stop the read if it has no bytes available to read
+		if (position >= size_) { // Stop the read if it has no bytes available to read
 			throw 1; // Throws error
 		}
-		char byte_ = vector_[position]; // Gets the byte in the current position
+		char byte_ = (int)(unsigned char)buffer[position]; // Gets the byte in the current position
 		position++; // Moves the position
-		bytesAvailable_ = size - position; // Calculate the new bytes available
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return byte_; // Returns the byte
 	}
 	char readByte(unsigned int offset) {
-		if (offset < size) { // Sets the position to the provided offset only if the read will handle it
+		if (offset < size_) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
 		return readByte();
@@ -133,16 +165,16 @@ public:
 	}
 
 	short readShort() {
-		if (position >= size -1) { // Stop the read if it has not enough bytes available to read
+		if (position >= size_ -1) { // Stop the read if it has not enough bytes available to read
 			throw 1; // Throws error
 		}
-		short short_ = ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 0 : 1)]; // Gets the bytes in the right sequence based on the endianness
+		short short_ = ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 0 : 1)]; // Gets the bytes in the right sequence based on the endianness
 		position += 2; // Moves the position by 2 bytes
-		bytesAvailable_ = size - position; // Calculate the new bytes available
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return short_; // Returns the short
 	}
 	short readShort(unsigned int offset) {
-		if (offset < size - 1) { // Sets the position to the provided offset only if the read will handle it
+		if (offset < size_ - 1) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
 		return readShort();
@@ -156,16 +188,16 @@ public:
 	}
 
 	int readInt() {
-		if (position >= size -3) { // Stop the read if it has not enough bytes available to read
+		if (position >= size_ -3) { // Stop the read if it has not enough bytes available to read
 			throw 1; // Throws error
 		}
-		int int_ = ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int)(unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (unsigned char)vector_[position + (endianness == LITTLE_ENDIAN_ ? 0 : 3)]; // Gets the bytes in the right sequence based on the endianness
+		int int_ = ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int)(unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (unsigned char)buffer[position + (endianness == LITTLE_ENDIAN_ ? 0 : 3)]; // Gets the bytes in the right sequence based on the endianness
 		position += 4; // Moves the position by 4 bytes
-		bytesAvailable_ = size - position; // Calculate the new bytes available
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return int_; // Returns the int
 	}
 	int readInt(unsigned int offset) {
-		if (offset < size - 3) { // Sets the position to the provided offset only if the read will handle it
+		if (offset < size_ - 3) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
 		return readInt();
@@ -178,27 +210,27 @@ public:
 		return readInt(offset);
 	}
 
-	string readUTF(unsigned int size_) {
-		if (size_ > size - position) { // Stop the read if the size provided exceeds the bytes available to read
+	string readUTF(unsigned int size) {
+		if (size > size_ - position) { // Stop the read if the size provided exceeds the bytes available to read
 			throw 1; // Throws error
 		}
 		string string_; // Instantiate new string to return
-		for (unsigned int o = 0; o < size_; position++, o++) { // Loop thru the ByteArray to push to the string
-			string_.push_back(vector_[position]); // Pushes each byte to the string
+		for (unsigned int o = 0; o < size; position++, o++) { // Loop thru the ByteArray to push to the string
+			string_.push_back(buffer[position]); // Pushes each byte to the string
 		}
-		bytesAvailable_ = size - position; // Calculate the new bytes available
+		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return string_; // Returns the string
 	}
-	string readUTF(unsigned int offset, unsigned int size_) {
-		if (size_ <= size - offset) { // Sets the position to the provided offset only if the read will handle it
+	string readUTF(unsigned int offset, unsigned int size) {
+		if (size <= size_ - offset) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
-		return readUTF(size_);
+		return readUTF(size);
 	}
 
 private:
-	/* The vector of chars */
-	vector<char> vector_;
+	/* The array of chars */
+	char * buffer;
 
 	/* Position of the offset in read and write operations */
 	unsigned int position = 0;
@@ -207,7 +239,7 @@ private:
 	unsigned int bytesAvailable_;
 
 	/* Fixed size of the ByteArray */
-	unsigned int size = 0;
+	unsigned int size_ = 0;
 
 	/* Define the endianness, little endian by default*/
 	unsigned char endianness = LITTLE_ENDIAN_;
