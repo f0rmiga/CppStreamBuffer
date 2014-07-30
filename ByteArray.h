@@ -13,49 +13,32 @@ using namespace std;
 class ByteArray {
 public:
 	/* Initialize empty ByteArray with predefined size */
-	ByteArray(unsigned int size) {
+	ByteArray(size_t size) {
 		size_ = size; // Set the private var "size" to the provided "size_"
 		bytesAvailable_ = size; // Set the bytes available
-		buffer = (char*)malloc(size); // Reserve the size in memory
-	}
-	/* Initialize ByteArray using existing array of char */
-	ByteArray(const char * newarray_) {
-		size_ = sizeof(newarray_); // Set the private var "size" to the size of the provided array
-		bytesAvailable_ = size_; // Set the bytes available
-		buffer = (char*)malloc(size_); // Reserve the size in memory
-		memcpy(buffer, newarray_, size_);
+		buffer = (int8_t*)malloc(size); // Reserve the size in memory
 	}
 	/* Initialize empty ByteArray with predefined size and endianness option */
-	ByteArray(unsigned int size, unsigned char endianness_) {
+	ByteArray(size_t size, uint8_t endianness_) {
 		size_ = size;
 		bytesAvailable_ = size_;
-		buffer = (char*)malloc(size_); // Reserve the size in memory
-		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
-			endianness = endianness_;
-	}
-	/* Initialize ByteArray using existing array of char and endianness option */
-	ByteArray(const char * newarray_, unsigned char endianness_) {
-		size_ = sizeof(newarray_);
-		bytesAvailable_ = size_;
-		buffer = (char*)malloc(size_); // Reserve the size in memory
-		memcpy(buffer, newarray_, size_);
+		buffer = (int8_t*)malloc(size_); // Reserve the size in memory
 		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
 			endianness = endianness_;
 	}
 
 	~ByteArray() {
 		free(buffer);
-		buffer = NULL;
 	}
 
 	/* Set the position to write or read */
-	void setPosition(unsigned int position_) {
+	void setPosition(uint32_t position_) {
 		position = position_; // set the private var "position" to the provided "position_"
 		bytesAvailable_ = size_ - position; // set the bytes available based on the size and the new position
 	}
 
-	bool resize(unsigned int newsize_) {
-		char * provisory_buffer = (char*)realloc(buffer, newsize_);
+	bool resize(uint32_t newsize_) {
+		int8_t* provisory_buffer = (int8_t*)realloc(buffer, newsize_);
 
 		if (provisory_buffer != NULL) {
 			buffer = provisory_buffer;
@@ -69,18 +52,18 @@ public:
 	}
 
 	/* Returns actual position to write or read */
-	unsigned int getPosition() {
+	uint32_t getPosition() {
 		return position;
 	}
 
 	/* Returns the number of bytes available to read */
-	unsigned int bytesAvailable() {
+	size_t bytesAvailable() {
 		return bytesAvailable_;
 	}
 
 	/* Returns related to the array */
-	const char * result() { return buffer; } // Returns the buffer of the ByteArray to use in other classes or libraries
-	unsigned int size() { return size_; }
+	const int8_t* result() { return buffer; } // Returns the buffer of the ByteArray to use in other classes or libraries
+	size_t size() { return size_; }
 	string getStringView(bool decimalView_) { // Returns a string that contains the value of each byte in the ByteArray. Ex: <buffer 10 -26 90 77 >
 		stringstream stream_;
 		stream_ << "<buffer ";
@@ -99,7 +82,7 @@ public:
 
 	/* Write functions */
 	/* returns true if wrote, otherwise, returns false */
-	bool writeByte(char byte_) {
+	bool writeByte(int8_t byte_) {
 		if (position > size_ - 1) { // Verifies if the ByteArray has available space to write 1 byte
 			return false; // Returns false if it doesn't
 		}
@@ -109,23 +92,23 @@ public:
 		return true;
 	}
 
-	bool writeShort(short short_) {
+	bool writeShort(int16_t short_) {
 		return writeShort(short_, endianness);
 	}
-	bool writeShortBE(short short_) {
+	bool writeShortBE(int16_t short_) {
 		return writeShort(short_, BIG_ENDIAN_);
 	}
-	bool writeShortLE(short short_) {
+	bool writeShortLE(int16_t short_) {
 		return writeShort(short_, LITTLE_ENDIAN_);
 	}
 
-	bool writeInt(int int_) {
+	bool writeInt(int32_t int_) {
 		return writeInt(int_, endianness);
 	}
-	bool writeIntBE(int int_) {
+	bool writeIntBE(int32_t int_) {
 		return writeInt(int_, BIG_ENDIAN_);
 	}
-	bool writeIntLE(int int_) {
+	bool writeIntLE(int32_t int_) {
 		return writeInt(int_, LITTLE_ENDIAN_);
 	}
 
@@ -141,120 +124,120 @@ public:
 
 	/* Read functions */
 	/* Throws exception if try to read out of bounds */
-	char readByte() {
+	int8_t readByte() {
 		if (position >= size_) { // Stop the read if it has no bytes available to read
 			throw 1; // Throws error
 		}
-		char byte_ = (int)(unsigned char)buffer[position]; // Gets the byte in the current position
+		int8_t byte_ = (uint8_t)buffer[position]; // Gets the byte in the current position
 		position++; // Moves the position
 		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return byte_; // Returns the byte
 	}
-	char readByte(unsigned int offset) {
+	int8_t readByte(uint32_t offset) {
 		if (offset < size_) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
 		return readByte();
 	}
 
-	unsigned char readUnsignedByte() {
+	uint8_t readUnsignedByte() {
 		return readByte();
 	}
-	unsigned char readUnsignedByte(unsigned int offset) {
+	uint8_t readUnsignedByte(uint32_t offset) {
 		return readByte(offset);
 	}
 
-	short readShort() {
+	int16_t readShort() {
 		return readShort(position, endianness);
 	}
-	short readShort(unsigned int offset) {
+	int16_t readShort(uint32_t offset) {
 		if (offset < size_ - 1) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
 		return readShort(position, endianness);
 	}
-	short readShortBE() {
+	int16_t readShortBE() {
 		return readShort(position, BIG_ENDIAN_);
 	}
-	short readShortLE() {
+	int16_t readShortLE() {
 		return readShort(position, LITTLE_ENDIAN_);
 	}
-	short readShortBE(unsigned int offset) {
+	int16_t readShortBE(uint32_t offset) {
 		if (offset < size_ - 1) {
 			position = offset;
 		}
 		return readShort(position, BIG_ENDIAN_);
 	}
-	short readShortLE(unsigned int offset) {
+	int16_t readShortLE(uint32_t offset) {
 		if (offset < size_ - 1) {
 			position = offset;
 		}
 		return readShort(position, LITTLE_ENDIAN_);
 	}
 
-	unsigned short readUnsignedShort() {
+	uint16_t readUnsignedShort() {
 		return readShort(position, endianness);
 	}
-	unsigned short readUnsignedShortBE() {
+	uint16_t readUnsignedShortBE() {
 		return readShort(position, BIG_ENDIAN_);
 	}
-	unsigned short readUnsignedShortLE() {
+	uint16_t readUnsignedShortLE() {
 		return readShort(position, LITTLE_ENDIAN_);
 	}
-	unsigned short readUnsignedShort(unsigned int offset) {
+	uint16_t readUnsignedShort(uint32_t offset) {
 		return readShort(offset);
 	}
-	unsigned short readUnsignedShortBE(unsigned int offset) {
+	uint16_t readUnsignedShortBE(uint32_t offset) {
 		return readShortBE(offset);
 	}
-	unsigned short readUnsignedShortLE(unsigned int offset) {
+	uint16_t readUnsignedShortLE(uint32_t offset) {
 		return readShortLE(offset);
 	}
 
-	int readInt() {
+	int32_t readInt() {
 		return readInt(position, endianness);
 	}
-	int readInt(unsigned int offset) {
+	int32_t readInt(uint32_t offset) {
 		if (offset < size_ - 3) { // Sets the position to the provided offset only if the read will handle it
 			position = offset;
 		}
 		return readInt(position, endianness);
 	}
-	int readIntBE() {
+	int32_t readIntBE() {
 		return readInt(position, BIG_ENDIAN_);
 	}
-	int readIntLE() {
+	int32_t readIntLE() {
 		return readInt(position, LITTLE_ENDIAN_);
 	}
-	int readIntBE(unsigned int offset) {
+	int32_t readIntBE(uint32_t offset) {
 		if (offset < size_ - 3) {
 			position = offset;
 		}
 		return readInt(position, BIG_ENDIAN_);
 	}
-	int readIntLE(unsigned int offset) {
+	int32_t readIntLE(uint32_t offset) {
 		if (offset < size_ - 3) {
 			position = offset;
 		}
 		return readInt(position, LITTLE_ENDIAN_);
 	}
 
-	unsigned int readUnsignedInt() {
+	uint32_t readUnsignedInt() {
 		return readInt(position, endianness);
 	}
-	unsigned int readUnsignedIntBE() {
+	uint32_t readUnsignedIntBE() {
 		return readInt(position, BIG_ENDIAN_);
 	}
-	unsigned int readUnsignedIntLE() {
+	uint32_t readUnsignedIntLE() {
 		return readInt(position, LITTLE_ENDIAN_);
 	}
-	unsigned int readUnsignedInt(unsigned int offset) {
+	uint32_t readUnsignedInt(uint32_t offset) {
 		return readInt(offset);
 	}
-	unsigned int readUnsignedIntBE(unsigned int offset) {
+	uint32_t readUnsignedIntBE(uint32_t offset) {
 		return readIntBE(offset);
 	}
-	unsigned int readUnsignedIntLE(unsigned int offset) {
+	uint32_t readUnsignedIntLE(uint32_t offset) {
 		return readIntLE(offset);
 	}
 
@@ -278,22 +261,22 @@ public:
 
 private:
 	/* The array of chars */
-	char * buffer;
+	int8_t* buffer;
 
 	/* Position of the offset in read and write operations */
-	unsigned int position = 0;
+	uint32_t position = 0;
 
 	/* Number of bytes available to read */
-	unsigned int bytesAvailable_;
+	size_t bytesAvailable_;
 
 	/* Fixed size of the ByteArray */
-	unsigned int size_ = 0;
+	size_t size_ = 0;
 
 	/* Define the endianness, little endian by default*/
-	unsigned char endianness = LITTLE_ENDIAN_;
+	uint8_t endianness = LITTLE_ENDIAN_;
 
 	/* All private functions to be called from public functions */
-	bool writeShort(short short_, unsigned char endianness_) {
+	bool writeShort(int16_t short_, uint8_t endianness_) {
 		if (bytesAvailable_ < 2) { // Verifies if the ByteArray has available space to write 2 bytes
 			return false; // Returns false if it doesn't
 		}
@@ -303,7 +286,7 @@ private:
 			return writeByte((short_ >> 8) & 0xFF) && writeByte(short_ & 0xFF); // Writes the big endian sequence
 	}
 
-	bool writeInt(int int_, unsigned char endianness_) {
+	bool writeInt(int32_t int_, uint8_t endianness_) {
 		if (bytesAvailable_ < 4) { // Verifies if the ByteArray has available space to write 4 bytes
 			return false; // Returns false if it doesn't
 		}
@@ -313,21 +296,21 @@ private:
 			return writeByte((int_ >> 24) & 0xFF) && writeByte((int_ >> 16) & 0xFF) && writeByte((int_ >> 8) & 0xFF) && writeByte(int_ & 0xFF); // Writes the big endian sequence
 	}
 
-	short readShort(unsigned int offset, unsigned char endianness_) {
+	int16_t readShort(uint32_t offset, uint8_t endianness_) {
 		if (offset >= size_ -1) { // Stop the read if it has not enough bytes available to read
 			throw 1; // Throws error
 		}
-		short short_ = ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 0 : 1)]; // Gets the bytes in the right sequence based on the endianness
+		int16_t short_ = ((int16_t)(uint8_t)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 1 : 0)] << 8) | (uint8_t)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 0 : 1)]; // Gets the bytes in the right sequence based on the endianness
 		position += 2; // Moves the position by 2 bytes
 		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return short_; // Returns the short
 	}
 
-	int readInt(unsigned int offset, unsigned char endianness_) {
+	int32_t readInt(uint32_t offset, uint8_t endianness_) {
 		if (offset >= size_ -3) { // Stop the read if it has not enough bytes available to read
 			throw 1; // Throws error
 		}
-		int int_ = ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int)(unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (unsigned char)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 0 : 3)]; // Gets the bytes in the right sequence based on the endianness
+		int32_t int_ = ((int32_t)(uint8_t)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 3 : 0)] << 24) | ((int32_t)(uint8_t)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 2 : 1)] << 16) | ((int32_t)(uint8_t)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 1 : 2)] << 8) | (uint8_t)buffer[offset + (endianness_ == LITTLE_ENDIAN_ ? 0 : 3)]; // Gets the bytes in the right sequence based on the endianness
 		position += 4; // Moves the position by 4 bytes
 		bytesAvailable_ = size_ - position; // Calculate the new bytes available
 		return int_; // Returns the int

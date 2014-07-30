@@ -92,22 +92,6 @@ int main() {
 	cout << testArray1.getStringView() << endl;
 	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
 
-	print("\n> Testing creation of another ByteArray using a vector of char\n", 31, false);
-	char newchars[7] = {-16,2,77,120,20,52,12};
-	//vector<char> vectornewchars(newchars, newchars + sizeof(newchars) / sizeof(char) );
-	ByteArray testArray2(newchars);
-
-	print("\n> Testing read operations\n", 31, false);
-	print("> Testing readByte()... ", 30, true);
-	cout << int(testArray2.readByte()) << endl;
-	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
-	print("> Testing readShort()... ", 30, true);
-	cout << int(testArray2.readShort()) << endl;
-	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
-	print("> Testing readInt()... ", 30, true);
-	cout << int(testArray2.readInt()) << endl;
-	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
-
 	print("\n> Testing creation of another ByteArray to use UTF\n", 31, false);
 	ByteArray testArray3(10);
 
