@@ -38,7 +38,7 @@ public:
 	}
 
 	bool resize(uint32_t newsize_) {
-		int8_t* provisory_buffer = (int8_t*)realloc(buffer, newsize_);
+		int8_t *provisory_buffer = (int8_t*)realloc(buffer, newsize_);
 
 		if (provisory_buffer != NULL) {
 			buffer = provisory_buffer;
