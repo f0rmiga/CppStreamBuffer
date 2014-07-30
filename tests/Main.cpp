@@ -9,7 +9,7 @@
 #include <chrono>
 #include <boost/asio.hpp>
 
-#include "ByteArray.h"
+#include "../ByteArray.h"
 
 using namespace std;
 
