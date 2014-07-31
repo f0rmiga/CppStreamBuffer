@@ -7,7 +7,6 @@
 
 #include <iostream>
 #include <chrono>
-#include <boost/asio.hpp>
 
 #include "../ByteArray.h"
 
