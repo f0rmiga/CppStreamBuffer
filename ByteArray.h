@@ -5,6 +5,8 @@
 // Copyright   : Thulio Ferraz Assis all rights reserved
 //============================================================================
 
+#include <cstring>
+
 using namespace std;
 
 #define LITTLE_ENDIAN_ 0
@@ -12,6 +14,10 @@ using namespace std;
 
 class ByteArray {
 public:
+	/* Empty ByteArray */
+	ByteArray() {
+		buffer = NULL;
+	}
 	/* Initialize empty ByteArray with predefined size */
 	ByteArray(size_t size) {
 		size_ = size; // Set the private var "size" to the provided "size_"
@@ -33,16 +39,18 @@ public:
 		bytesAvailable_ = other.bytesAvailable_;
 		endianness_ = other.endianness_;
 		buffer = new int8_t[size_];
-		*buffer = *other.buffer;
+		copy(other.buffer, other.buffer+size_, buffer);
 	}
 	/* Assignment operator */
-	ByteArray& operator=(const ByteArray& other) {
-		size_ = other.size_;
-		position_ = other.position_;
-		bytesAvailable_ = other.bytesAvailable_;
-		endianness_ = other.endianness_;
-		buffer = new int8_t[size_];
-		*buffer = *other.buffer;
+	ByteArray &operator=(const ByteArray& other) {
+		if (this != &other) {
+			size_ = other.size_;
+			position_ = other.position_;
+			bytesAvailable_ = other.bytesAvailable_;
+			endianness_ = other.endianness_;
+			buffer = new int8_t[size_];
+			copy(other.buffer, other.buffer+size_, buffer);
+		}
 		return *this;
 	}
 

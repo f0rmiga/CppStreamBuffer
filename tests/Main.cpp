@@ -24,7 +24,9 @@ void print(string str) {
 
 void display(ByteArray sss) {
 	sss.setPosition(3);
-	cout << "bytes available" << sss.bytesAvailable() << endl;
+	print("> Testing copy constructor\n", 31, false);
+	print("> Set position to 3 and print bytesAvailable... ", 30, true);
+	cout << "Bytes available: " << sss.bytesAvailable() << endl;
 }
 
 int main() {
@@ -56,40 +58,47 @@ int main() {
 	print(testArray1.getPosition() == 0 ? "passed!\n" : "error!\n", 31);
 	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
 
+	print("\n> Testing assignment operator\n", 31, false);
+	print("> Copying first byte array to another byte array", 30, true);
+	ByteArray testArray2;
+	testArray2 = testArray1;
+
 	print("\n> Testing read operations\n", 31, false);
 	print("> Testing readByte() expected 105... ", 30, true);
-	print(testArray1.readByte() == 105 ? "passed!\n" : "error!\n", 31);
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	print(testArray2.readByte() == 105 ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 	print("> Testing readShort() expected 31000... ", 30, true);
-	print(testArray1.readShort() == 31000 ? "passed!\n" : "error!\n", 31);
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	print(testArray2.readShort() == 31000 ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 	print("> Testing readUnsignedShort() expected 45000... ", 30, true);
-	print(testArray1.readUnsignedShort() == 45000 ? "passed!\n" : "error!\n", 31);
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	print(testArray2.readUnsignedShort() == 45000 ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 	print("> Testing readShort() expected -31000... ", 30, true);
-	print(testArray1.readShort() == -31000 ? "passed!\n" : "error!\n", 31);
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	print(testArray2.readShort() == -31000 ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 	print("> Testing readInt() expected 145845304... ", 30, true);
-	print(testArray1.readInt() == 145845304 ? "passed!\n" : "error!\n", 31);
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	print(testArray2.readInt() == 145845304 ? "passed!\n" : "error!\n", 31);
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 	print("> Trying to exceed read with readByte()... ", 30, true);
 	try {
-		testArray1.readByte();
+		testArray2.readByte();
 		print("error!\n", 31);
 	} catch(int e) {
 		print("passed!\n", 31);
 	}
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
 	print("> Trying to exceed read with readShort() in position (size - 1)... ", 30, true);
 	try {
-		testArray1.setPosition(testArray1.size() - 1);
-		testArray1.readShort();
+		testArray2.setPosition(testArray2.size() - 1);
+		testArray2.readShort();
 		print("error!\n", 31);
 	} catch(int e) {
 		print("passed!\n", 31);
-		testArray1.setPosition(testArray1.size());
+		testArray2.setPosition(testArray2.size());
 	}
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
+	cout << "> Position: " << testArray2.getPosition() << " | Size: " << testArray2.size() << " | Bytes Available: " << testArray2.bytesAvailable() << endl;
+
+	display(testArray2);
 
 	print("\n> Testing creation of another ByteArray to use UTF\n", 31, false);
 	ByteArray testArray3(10);
@@ -155,8 +164,6 @@ int main() {
 		performance_ByteArray.readInt();
 	}
 	end = chrono::system_clock::now();
-
-	display(performance_ByteArray);
 
 	elapsed_seconds = end-start;
 	print("Result: ", 31, false);
