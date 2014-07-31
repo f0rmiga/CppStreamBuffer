@@ -16,39 +16,25 @@ public:
 	ByteArray(size_t size) {
 		size_ = size; // Set the private var "size" to the provided "size_"
 		bytesAvailable_ = size; // Set the bytes available
-		buffer = (int8_t*)malloc(size); // Reserve the size in memory
+		buffer = new int8_t[size]; // Reserve the size in memory
 	}
 	/* Initialize empty ByteArray with predefined size and endianness option */
 	ByteArray(size_t size, uint8_t endianness_) {
 		size_ = size;
 		bytesAvailable_ = size_;
-		buffer = (int8_t*)malloc(size_); // Reserve the size in memory
+		buffer = new int8_t[size]; // Reserve the size in memory
 		if (endianness_ == BIG_ENDIAN_ || endianness_ == LITTLE_ENDIAN_)
 			endianness = endianness_;
 	}
 
 	~ByteArray() {
-		free(buffer);
+		delete[] buffer;
 	}
 
 	/* Set the position to write or read */
 	void setPosition(uint32_t position_) {
 		position = position_; // set the private var "position" to the provided "position_"
 		bytesAvailable_ = size_ - position; // set the bytes available based on the size and the new position
-	}
-
-	bool resize(uint32_t newsize_) {
-		int8_t *provisory_buffer = (int8_t*)realloc(buffer, newsize_);
-
-		if (provisory_buffer != NULL) {
-			buffer = provisory_buffer;
-			size_ = newsize_;
-			setPosition(0);
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 
 	/* Returns actual position to write or read */
@@ -62,23 +48,8 @@ public:
 	}
 
 	/* Returns related to the array */
-	const int8_t* result() { return buffer; } // Returns the buffer of the ByteArray to use in other classes or libraries
+	int8_t *result() { return buffer; } // Returns the buffer of the ByteArray to use in other classes or libraries
 	size_t size() { return size_; }
-	string getStringView(bool decimalView_) { // Returns a string that contains the value of each byte in the ByteArray. Ex: <buffer 10 -26 90 77 >
-		stringstream stream_;
-		stream_ << "<buffer ";
-		for (unsigned int i = 0; i < size_; i++) {
-			if (decimalView_)
-				stream_ << (int)(unsigned char)buffer[i] << " ";
-			else
-				stream_ << "0x" << std::hex << (int)(unsigned char)buffer[i] << " ";
-		}
-		stream_ << ">";
-		return stream_.str();
-	}
-	string getStringView() {
-		return getStringView(false);
-	}
 
 	/* Write functions */
 	/* returns true if wrote, otherwise, returns false */
@@ -261,7 +232,7 @@ public:
 
 private:
 	/* The array of chars */
-	int8_t* buffer;
+	int8_t *buffer;
 
 	/* Position of the offset in read and write operations */
 	uint32_t position = 0;

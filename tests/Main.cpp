@@ -86,11 +86,6 @@ int main() {
 		testArray1.setPosition(testArray1.size());
 	}
 	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
-	cout << testArray1.getStringView(true) << endl;
-	print("> Testing resize(20)... ", 30, true);
-	print(testArray1.resize(20) ? "passed!\n" : "error!\n", 31);
-	cout << testArray1.getStringView() << endl;
-	cout << "> Position: " << testArray1.getPosition() << " | Size: " << testArray1.size() << " | Bytes Available: " << testArray1.bytesAvailable() << endl;
 
 	print("\n> Testing creation of another ByteArray to use UTF\n", 31, false);
 	ByteArray testArray3(10);
@@ -161,9 +156,14 @@ int main() {
 	print("Result: ", 31, false);
 	cout << elapsed_seconds.count() * 1000 << " ms\n";
 
-	print("> Creating Boost Asio buffer using the ByteArray created for test performance\n", 30, true);
+	print("> Creating 10.000.000 of ByteArray and write 5 shorts\n", 30, true);
 	start = chrono::system_clock::now();
-	boost::asio::const_buffer asio_buffer = boost::asio::buffer(performance_ByteArray.result(), performance_ByteArray.size());
+	for (uint32_t i = 0; i < size_performance; i++) {
+		ByteArray tenmillionarrays(10);
+		for (uint8_t j = 0; j < 5; j++) {
+			tenmillionarrays.writeShort(5968);
+		}
+	}
 	end = chrono::system_clock::now();
 
 	elapsed_seconds = end-start;
