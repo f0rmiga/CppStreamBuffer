@@ -23,6 +23,11 @@ void print(string str) {
 	print(str, 30, false);
 }
 
+void display(ByteArray sss) {
+	sss.setPosition(3);
+	cout << "bytes available" << sss.bytesAvailable() << endl;
+}
+
 int main() {
 	print(">> Testing ByteArray.h <<\n\n", 31, true);
 
@@ -151,6 +156,8 @@ int main() {
 		performance_ByteArray.readInt();
 	}
 	end = chrono::system_clock::now();
+
+	display(performance_ByteArray);
 
 	elapsed_seconds = end-start;
 	print("Result: ", 31, false);
