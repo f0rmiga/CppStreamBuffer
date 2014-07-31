@@ -178,11 +178,6 @@ Documentation
   Reads an UTF string in the offset position of the specified size. Returns a string if available, or throws error.
   
 ##Other functions
-###resize(size)
-  - _size - size_t_
-  
-  Resizes the ByteArray reallocating memory.
-  
 ###setPosition(position)
   - _position - uint32_t_
   
@@ -199,11 +194,3 @@ Documentation
   
 ###result()
   Returns a const char * to use with other libraries, or to send over network, for example.
-  
-###getStringView()
-  Returns a string representation of the ByteArray, just for debug purposes. Returns as hexadecimal format.
-  
-###getStringView(decimal view)
-  - _decimal view - bool_
-  
-  Returns a string representation of the ByteArray, just for debug porposes. The parameter sets if the return will be as decimal format or not.
