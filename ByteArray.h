@@ -35,6 +35,16 @@ public:
 		buffer = new int8_t[size_];
 		*buffer = *other.buffer;
 	}
+	/* Assignment operator */
+	ByteArray& operator=(const ByteArray& other) {
+		size_ = other.size_;
+		position_ = other.position_;
+		bytesAvailable_ = other.bytesAvailable_;
+		endianness_ = other.endianness_;
+		buffer = new int8_t[size_];
+		*buffer = *other.buffer;
+		return *this;
+	}
 
 	~ByteArray() {
 		delete[] buffer;
