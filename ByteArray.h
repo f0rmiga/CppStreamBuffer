@@ -5,8 +5,6 @@
 // Copyright   : Thulio Ferraz Assis all rights reserved
 //============================================================================
 
-#include <cstring>
-
 using namespace std;
 
 #define LITTLE_ENDIAN_ 0
