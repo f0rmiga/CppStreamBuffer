@@ -1,4 +1,4 @@
-CppByteArray
+CppStreamBuffer
 ============
 
 Preparing the new documentation.
