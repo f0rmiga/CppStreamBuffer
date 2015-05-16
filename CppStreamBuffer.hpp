@@ -77,6 +77,8 @@ namespace CppStreamBuffer {
 
         ~Buffer() { }
 
+        size_t size() { return size_; }
+
         Buffer &operator<<(const Format &flag) {
             printformat = flag;
             return *this;
