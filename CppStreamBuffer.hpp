@@ -82,6 +82,12 @@ namespace CppStreamBuffer {
             return *this;
         }
 
+        Buffer &operator<<(const bool &var) {
+            buffer += (var & 0xFF);
+            size_++;
+            return *this;
+        }
+
         Buffer &operator<<(const int8_t &var) {
             buffer += (var & 0xFF);
             size_++;
@@ -157,8 +163,19 @@ namespace CppStreamBuffer {
         }
 
         Buffer &operator<<(const string &var) {
-            buffer += var;
-            size_ += var.size();
+            if (var.size() <= numeric_limits<uint16_t>::max()) {
+                *this << (uint16_t) var.size();
+                buffer += var;
+                size_ += var.size() + sizeof(uint16_t);
+            }
+            return *this;
+        }
+
+        Buffer &operator>>(bool &var) {
+            if (readpos + 1 <= size_) {
+                var = buffer[readpos];
+                readpos++;
+            }
             return *this;
         }
 
@@ -266,8 +283,13 @@ namespace CppStreamBuffer {
             return *this;
         }
 
-        void operator>>(string &var) {
-            copy(buffer.begin(), buffer.end(), back_inserter(var));
+        Buffer &operator>>(string &var) {
+            uint16_t s_size;
+            *this >> s_size;
+            cout << s_size;
+            copy(buffer.begin() + readpos, buffer.begin() + readpos + s_size, back_inserter(var));
+            readpos += s_size;
+            return *this;
         }
 
         Buffer &operator>>(Extract::String &var) {
@@ -298,7 +320,7 @@ namespace CppStreamBuffer {
                         (buff.buffer.size() - 50 > 1 ? "s " : " ");
                     oss << ">";
 
-                    ostr << oss.str() << endl;
+                    ostr << oss.str();
                 }
                     break;
 
