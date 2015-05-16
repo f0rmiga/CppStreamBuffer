@@ -28,6 +28,8 @@ Support for Data Types
 
 You can insert/extract almost any type of data.
 
+- bool
+
 - Integer types:
     - uint8_t (unsigned char)
     - uint16_t (unsigned short)
@@ -38,17 +40,19 @@ You can insert/extract almost any type of data.
     - int32_t (int)
     - int64_t (long)
 
-- Floating-point types:
+- Floating-point types: (IEEE 754 only)
     - float
     - double
 
-- String types:
-    - std::string
+- std::string
 
 Tutorial
 ========
 
 There is not much to say on how to use. You need to pay attention to match the order of write and read. For example, if you write 2 shorts and 1 float, you need to read in that sequence, but it is more than obvious, I guess.
+
+######Note for std::string
+If you write a string to the buffer, it will add 2 bytes containing the length of the string for further read. This way you can focus on the information being passed. The maximum value of 2 bytes is 65.535, so, your maximum string length must be 65.535. Be sure to not surpass that limit.
 
 Dependencies
 ============
