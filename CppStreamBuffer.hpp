@@ -51,16 +51,6 @@ namespace CppStreamBuffer {
         BINARY, HEX
     };
 
-    namespace Extract {
-        class String {
-        public:
-            String(uint32_t count, string &str) : count(count), str(str) { }
-
-            uint32_t count;
-            string &str;
-        };
-    }
-
     class Buffer {
     public:
         explicit Buffer() : endianness(Endianness::BIG) { }
@@ -264,7 +254,7 @@ namespace CppStreamBuffer {
         }
 
         Buffer &operator>>(double &var) {
-            if (std::numeric_limits<float>::is_iec559) {
+            if (std::numeric_limits<double>::is_iec559) {
                 if (readpos + 8 <= size_) {
                     uint8_t b[] = {(uint8_t) buffer[readpos],
                                    (uint8_t) buffer[readpos + 1],
@@ -286,18 +276,11 @@ namespace CppStreamBuffer {
         }
 
         Buffer &operator>>(string &var) {
+            var.clear();
             uint16_t s_size;
             *this >> s_size;
-            cout << s_size;
             copy(buffer.begin() + readpos, buffer.begin() + readpos + s_size, back_inserter(var));
             readpos += s_size;
-            return *this;
-        }
-
-        Buffer &operator>>(Extract::String &var) {
-            var.str = string();
-            copy(buffer.begin() + readpos, buffer.begin() + readpos + var.count, back_inserter(var.str));
-            readpos += var.count;
             return *this;
         }
 
