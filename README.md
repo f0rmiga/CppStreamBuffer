@@ -23,6 +23,17 @@ int main() {
 }
 ```
 
+Or, example using in a game to send data from server to player:
+
+```c++
+void updatePlayerInfo(Player player) {
+    CppStreamBuffer::Buffer buffer;
+    buffer << player.name << player.life << player.mana << player.level;
+    ostream << buffer.size() << buffer;
+    ostream.flush();
+}
+```
+
 Support for Data Types
 ======================
 
