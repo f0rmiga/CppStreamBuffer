@@ -126,5 +126,9 @@ int main() {
     end = chrono::high_resolution_clock::now();
     std::cout << chrono::duration<uint32_t, nano>(end - start).count() << " ns" << std::endl;
 
+    std::cout << "\nPrinting in HEX format: buffer << CppStreamBuffer::Format::HEX;" << std::endl;
+    buffer8 << CppStreamBuffer::Format::HEX;
+    std::cout << buffer8;
+
     return 0;
 }
