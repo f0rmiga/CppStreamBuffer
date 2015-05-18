@@ -46,6 +46,11 @@ int main() {
     std::cout << "float:            " << (t10 == t10_b ? "ok" : "error") << std::endl;
     std::cout << "double:           " << (t11 == t11_b ? "ok" : "error") << std::endl;
     std::cout << "std::string:      " << (t12 == t12_b ? "ok" : "error") << std::endl;
+    CppStreamBuffer::Buffer appendBuffer;
+    appendBuffer << t12;
+    buffer1 << appendBuffer;
+    buffer1 >> t12_b;
+    std::cout << "append buffer:    " << (t12 == t12_b ? "ok" : "error") << std::endl;
 
     std::cout << "\nTesting constructors:" << std::endl;
 

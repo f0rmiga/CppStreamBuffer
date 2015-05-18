@@ -41,6 +41,7 @@ using namespace std;
 const int iCheck = 1;
 #define isLE() ( (*(char*)&iCheck) != 0 ) // check if the system is little-endian
 #define ieee754Err std::runtime_error("Your system is not using IEEE 754, don't use float and double operations")
+#define diffEndianErr std::runtime_error("Not allowed to append a buffer with different endianness")
 
 namespace CppStreamBuffer {
     enum Endianness {
@@ -71,6 +72,14 @@ namespace CppStreamBuffer {
 
         Buffer &operator<<(const Format &flag) {
             printformat = flag;
+            return *this;
+        }
+
+        Buffer &operator<<(const Buffer &other) {
+            if (endianness != other.endianness)
+                throw diffEndianErr;
+            buffer += other.buffer;
+            size_ += other.size_;
             return *this;
         }
 
@@ -123,34 +132,30 @@ namespace CppStreamBuffer {
         }
 
         Buffer &operator<<(const float &var) {
-            if (std::numeric_limits<float>::is_iec559) {
-                uint8_t b[4];
-                memcpy(b, &var, 4);
-                if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
-                    std::reverse(std::begin(b), std::end(b));
-                for (uint8_t i = 0; i < 4; i++) {
-                    buffer += (b[i] & 0xFF);
-                }
-                size_ += 4;
-            } else {
+            if (!std::numeric_limits<float>::is_iec559)
                 throw ieee754Err;
+            uint8_t b[4];
+            memcpy(b, &var, 4);
+            if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
+                std::reverse(std::begin(b), std::end(b));
+            for (uint8_t i = 0; i < 4; i++) {
+                buffer += (b[i] & 0xFF);
             }
+            size_ += 4;
             return *this;
         }
 
         Buffer &operator<<(const double &var) {
-            if (std::numeric_limits<float>::is_iec559) {
-                uint8_t b[8];
-                memcpy(b, &var, 8);
-                if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
-                    std::reverse(std::begin(b), std::end(b));
-                for (uint8_t i = 0; i < 8; i++) {
-                    buffer += (b[i] & 0xFF);
-                }
-                size_ += 8;
-            } else {
+            if (!std::numeric_limits<double>::is_iec559)
                 throw ieee754Err;
+            uint8_t b[8];
+            memcpy(b, &var, 8);
+            if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
+                std::reverse(std::begin(b), std::end(b));
+            for (uint8_t i = 0; i < 8; i++) {
+                buffer += (b[i] & 0xFF);
             }
+            size_ += 8;
             return *this;
         }
 
@@ -236,41 +241,37 @@ namespace CppStreamBuffer {
         }
 
         Buffer &operator>>(float &var) {
-            if (std::numeric_limits<float>::is_iec559) {
-                if (readpos + 4 <= size_) {
-                    uint8_t b[] = {(uint8_t) buffer[readpos],
-                                   (uint8_t) buffer[readpos + 1],
-                                   (uint8_t) buffer[readpos + 2],
-                                   (uint8_t) buffer[readpos + 3]};
-                    if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
-                        std::reverse(std::begin(b), std::end(b));
-                    memcpy(&var, &b, 4);
-                    readpos += 4;
-                }
-            } else {
+            if (!std::numeric_limits<float>::is_iec559)
                 throw ieee754Err;
+            if (readpos + 4 <= size_) {
+                uint8_t b[] = {(uint8_t) buffer[readpos],
+                               (uint8_t) buffer[readpos + 1],
+                               (uint8_t) buffer[readpos + 2],
+                               (uint8_t) buffer[readpos + 3]};
+                if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
+                    std::reverse(std::begin(b), std::end(b));
+                memcpy(&var, &b, 4);
+                readpos += 4;
             }
             return *this;
         }
 
         Buffer &operator>>(double &var) {
-            if (std::numeric_limits<double>::is_iec559) {
-                if (readpos + 8 <= size_) {
-                    uint8_t b[] = {(uint8_t) buffer[readpos],
-                                   (uint8_t) buffer[readpos + 1],
-                                   (uint8_t) buffer[readpos + 2],
-                                   (uint8_t) buffer[readpos + 3],
-                                   (uint8_t) buffer[readpos + 4],
-                                   (uint8_t) buffer[readpos + 5],
-                                   (uint8_t) buffer[readpos + 6],
-                                   (uint8_t) buffer[readpos + 7]};
-                    if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
-                        std::reverse(std::begin(b), std::end(b));
-                    memcpy(&var, &b, 8);
-                    readpos += 8;
-                }
-            } else {
+            if (!std::numeric_limits<double>::is_iec559)
                 throw ieee754Err;
+            if (readpos + 8 <= size_) {
+                uint8_t b[] = {(uint8_t) buffer[readpos],
+                               (uint8_t) buffer[readpos + 1],
+                               (uint8_t) buffer[readpos + 2],
+                               (uint8_t) buffer[readpos + 3],
+                               (uint8_t) buffer[readpos + 4],
+                               (uint8_t) buffer[readpos + 5],
+                               (uint8_t) buffer[readpos + 6],
+                               (uint8_t) buffer[readpos + 7]};
+                if ((isLE() && endianness == Endianness::BIG) || (!isLE() && endianness == Endianness::LITTLE))
+                    std::reverse(std::begin(b), std::end(b));
+                memcpy(&var, &b, 8);
+                readpos += 8;
             }
             return *this;
         }
